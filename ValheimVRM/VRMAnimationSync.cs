@@ -18,15 +18,32 @@ namespace ValheimVRM
 
 		public void Setup(Animator orgAnim, bool isRagdoll = false, float offset = 0.0f)
 		{
-			this.ragdoll = isRagdoll;
-			this.offset = offset;
-			this.orgAnim = orgAnim;
-			this.vrmAnim = GetComponent<Animator>();
-			this.vrmAnim.applyRootMotion = true;
+			Debug.Log("Setup Start");
+			this.ragdoll = isRagdoll; Debug.Log("Ragdoll " + isRagdoll);
+			this.offset = offset; Debug.Log("Offset");
+			this.orgAnim = orgAnim; Debug.Log("orgAnim"); Debug.Log(orgAnim);
+			this.vrmAnim = GetComponent<Animator>(); Debug.Log("GetAnimator");
+			Debug.Log(vrmAnim);
+
+			Component[] components = gameObject.GetComponents(typeof(Component));
+			foreach (Component component in components)
+			{
+				Debug.Log(component.ToString());
+			}
+
+			Component[] components2 = gameObject.GetComponentsInChildren(typeof(Component));
+			foreach (Component component in components2)
+			{
+				Debug.Log(component.ToString());
+			}
+
+
+			this.vrmAnim.applyRootMotion = true; Debug.Log("ApplyRootMotion"); 
 			this.vrmAnim.updateMode = orgAnim.updateMode;
 			this.vrmAnim.feetPivotActive = orgAnim.feetPivotActive;
 			this.vrmAnim.layersAffectMassCenter = orgAnim.layersAffectMassCenter;
 			this.vrmAnim.stabilizeFeet = orgAnim.stabilizeFeet;
+			Debug.Log("Setup Complete");
 
 			PoseHandlerCreate(orgAnim, vrmAnim);
 		}
@@ -44,7 +61,10 @@ namespace ValheimVRM
 				orgPose.Dispose();
 			if (vrmPose != null)
 				vrmPose.Dispose();
+
 		}
+
+
 
 		private float CalcFootSub()
 		{

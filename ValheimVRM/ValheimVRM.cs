@@ -93,11 +93,11 @@ namespace ValheimVRM
 
 			var rightItem = __instance.GetField<VisEquipment, GameObject>("m_rightItemInstance");
 			if (rightItem != null) rightItem.transform.localPosition = Settings.ReadVector3(name, "RightHandEuqipPos", Vector3.zero);
-			
+
 			// divided  by 100 to keep the settings file positions in the same number range. (position offset appears to be on the world, not local)
 			var rightBackItem = __instance.GetField<VisEquipment, GameObject>("m_rightBackItemInstance");
 			if (rightBackItem != null) rightBackItem.transform.localPosition = Settings.ReadVector3(name, "RightHandBackItemPos", Vector3.zero) / 100.0f;
-			
+
 			var leftBackItem = __instance.GetField<VisEquipment, GameObject>("m_leftBackItemInstance");
 			if (leftBackItem != null) leftBackItem.transform.localPosition = Settings.ReadVector3(name, "LeftHandBackItemPos", Vector3.zero) / 100.0f;
 		}
@@ -122,7 +122,7 @@ namespace ValheimVRM
 				smr.forceRenderingOff = true;
 				smr.updateWhenOffscreen = true;
 			}
-			
+
 
 			var ragAnim = ragdoll.gameObject.AddComponent<Animator>();
 			ragAnim.keepAnimatorControllerStateOnDisable = true;
@@ -197,7 +197,7 @@ namespace ValheimVRM
 				__result = head.position;
 				return false;
 			}
-			
+
 			return true;
 		}
 	}
@@ -225,7 +225,7 @@ namespace ValheimVRM
 
 			if (!string.IsNullOrEmpty(playerName) && !vrmDic.ContainsKey(playerName))
 			{
-				var path = Environment.CurrentDirectory + $"/ValheimVRM/{playerName}.vrm";
+				var path = Environment.CurrentDirectory + $"\\ValheimVRM\\{playerName}.vrm";
 
 				ref var m_nview = ref AccessTools.FieldRefAccess<Player, ZNetView>("m_nview").Invoke(__instance);
 				byte[] vrmData = null;
@@ -256,7 +256,26 @@ namespace ValheimVRM
 					}
 
 					var scale = Settings.ReadFloat(playerName, "ModelScale", 1.1f);
-					var orgVrm = vrmData != null ? ImportVRM(vrmData, scale) : ImportVRM(path, scale);
+					VRMHandler handler = new VRMHandler();
+					// var orgVrm = vrmData != null ? ImportVRM(vrmData, scale) : ImportVRM(path, scale);
+
+					GameObject orgVrm;
+
+					if (vrmData != null)
+					{
+						orgVrm = ImportVRM(vrmData, scale);
+
+					}
+
+					else
+					{
+						handler.Path = path;
+						handler.Scale = scale;
+						handler.loadVRM();
+						orgVrm = handler.vrmGameObject;
+					}
+
+
 					if (orgVrm != null)
 					{
 						GameObject.DontDestroyOnLoad(orgVrm);
@@ -349,7 +368,7 @@ namespace ValheimVRM
 								mat.SetTexture("_LegsBumpMap", bumpMap);
 								mat.SetFloat("_Glossiness", 0.2f);
 								mat.SetFloat("_MetalGlossiness", 0.0f);
-								
+
 							}
 						}
 
@@ -381,6 +400,7 @@ namespace ValheimVRM
 
 			if (!string.IsNullOrEmpty(playerName) && vrmDic.ContainsKey(playerName))
 			{
+				
 				var vrmModel = GameObject.Instantiate(vrmDic[playerName]);
 				VRMModels.PlayerToVrmDic[__instance] = vrmModel;
 				VRMModels.PlayerToNameDic[__instance] = playerName;
@@ -401,9 +421,15 @@ namespace ValheimVRM
 
 				// アニメーション同期
 				var offsetY = Settings.ReadFloat(playerName, "ModelOffsetY");
-				if (vrmModel.GetComponent<VRMAnimationSync>() == null) vrmModel.AddComponent<VRMAnimationSync>().Setup(orgAnim, false, offsetY);
+				Debug.Log("ping");
+				if (vrmModel.GetComponent<VRMAnimationSync>() == null)
+				{
+					Debug.Log("ping2");
+					vrmModel.AddComponent<VRMAnimationSync>().Setup(orgAnim, false, offsetY);
+					Debug.Log("ping3");
+				}
 				else vrmModel.GetComponent<VRMAnimationSync>().Setup(orgAnim, false, offsetY);
-
+				Debug.Log("after ping");
 				// カメラ位置調整
 				if (Settings.ReadBool(playerName, "FixCameraHeight", true))
 				{
@@ -425,53 +451,31 @@ namespace ValheimVRM
 				}
 
 				// SpringBone設定
-				var stiffness = Settings.ReadFloat(playerName, "SpringBoneStiffness", 1.0f);
+				// Commented out until I can get this working again.
+				/* var stiffness = Settings.ReadFloat(playerName, "SpringBoneStiffness", 1.0f);
 				var gravity = Settings.ReadFloat(playerName, "SpringBoneGravityPower", 1.0f);
-				foreach (var springBone in vrmModel.GetComponentsInChildren<VRM.VRMSpringBone>())
+				foreach (var springBone in vrmModel.GetComponentsInChildren<VRMSpringBone>())
 				{
 					springBone.m_stiffnessForce *= stiffness;
 					springBone.m_gravityPower *= gravity;
 					springBone.m_updateType = VRMSpringBone.SpringBoneUpdateType.FixedUpdate;
 					springBone.m_center = null;
-				}
+				} */
 			}
 		}
 
-		private static GameObject ImportVRM(string path, float scale)
+	/*	private static GameObject ImportVRM(string path, float scale)
+		{
+			
+
+			
+		} */
+
+		private static GameObject ImportVRM(byte[] bytes, float scale)
 		{
 			try
 			{
-				// 1. GltfParser を呼び出します。
-				//    GltfParser はファイルから JSON 情報とバイナリデータを読み出します。
-				var parser = new GltfParser();
-				parser.ParsePath(path);
 
-				// 2. GltfParser のインスタンスを引数にして VRMImporterContext を作成します。
-				//    VRMImporterContext は VRM のロードを実際に行うクラスです。
-				using (var context = new VRMImporterContext(parser))
-				{
-					// 3. Load 関数を呼び出し、VRM の GameObject を生成します。
-					context.Load();
-
-					// 4. （任意） SkinnedMeshRenderer の UpdateWhenOffscreen を有効にできる便利関数です。
-					context.EnableUpdateWhenOffscreen();
-
-					// 5. VRM モデルを表示します。
-					context.ShowMeshes();
-
-					// 6. VRM の GameObject が実際に使用している UnityEngine.Object リソースの寿命を VRM の GameObject に紐付けます。
-					//    つまり VRM の GameObject の破棄時に、実際に使用しているリソース (Texture, Material, Mesh, etc) をまとめて破棄することができます。
-					context.DisposeOnGameObjectDestroyed();
-
-					context.Root.transform.localScale *= scale;
-
-					Debug.Log("[ValheimVRM] VRM読み込み成功");
-					Debug.Log("[ValheimVRM] VRMファイルパス: " + path);
-
-					// 7. Root の GameObject を return します。
-					//    Root の GameObject とは VRMMeta コンポーネントが付与されている GameObject のことです。
-					return context.Root;
-				}
 			}
 			catch (Exception ex)
 			{
@@ -479,49 +483,14 @@ namespace ValheimVRM
 			}
 
 			return null;
+
+
 		}
 
-		private static GameObject ImportVRM(byte[] buf, float scale)
-		{
-			try
-			{
-				// 1. GltfParser を呼び出します。
-				//    GltfParser はファイルから JSON 情報とバイナリデータを読み出します。
-				var parser = new GltfParser();
-				parser.ParseGlb(buf);
 
-				// 2. GltfParser のインスタンスを引数にして VRMImporterContext を作成します。
-				//    VRMImporterContext は VRM のロードを実際に行うクラスです。
-				using (var context = new VRMImporterContext(parser))
-				{
-					// 3. Load 関数を呼び出し、VRM の GameObject を生成します。
-					context.Load();
 
-					// 4. （任意） SkinnedMeshRenderer の UpdateWhenOffscreen を有効にできる便利関数です。
-					context.EnableUpdateWhenOffscreen();
-
-					// 5. VRM モデルを表示します。
-					context.ShowMeshes();
-
-					// 6. VRM の GameObject が実際に使用している UnityEngine.Object リソースの寿命を VRM の GameObject に紐付けます。
-					//    つまり VRM の GameObject の破棄時に、実際に使用しているリソース (Texture, Material, Mesh, etc) をまとめて破棄することができます。
-					context.DisposeOnGameObjectDestroyed();
-
-					context.Root.transform.localScale *= scale;
-
-					Debug.Log("[ValheimVRM] VRM読み込み成功");
-
-					// 7. Root の GameObject を return します。
-					//    Root の GameObject とは VRMMeta コンポーネントが付与されている GameObject のことです。
-					return context.Root;
-				}
-			}
-			catch (Exception ex)
-			{
-				Debug.LogError(ex);
-			}
-
-			return null;
-		}
 	}
+
+
 }
+
