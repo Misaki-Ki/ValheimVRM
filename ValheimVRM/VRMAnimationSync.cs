@@ -25,13 +25,13 @@ namespace ValheimVRM
 			this.vrmAnim = GetComponent<Animator>(); Debug.Log("GetAnimator");
 			Debug.Log(vrmAnim);
 
-			Component[] components = gameObject.GetComponents(typeof(Component));
+			Component[] components = this.GetComponents(typeof(Component));
 			foreach (Component component in components)
 			{
 				Debug.Log(component.ToString());
 			}
 
-			Component[] components2 = gameObject.GetComponentsInChildren(typeof(Component));
+			Component[] components2 = this.GetComponentsInChildren(typeof(Component));
 			foreach (Component component in components2)
 			{
 				Debug.Log(component.ToString());

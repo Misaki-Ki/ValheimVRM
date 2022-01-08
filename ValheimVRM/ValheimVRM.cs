@@ -256,7 +256,7 @@ namespace ValheimVRM
 					}
 
 					var scale = Settings.ReadFloat(playerName, "ModelScale", 1.1f);
-					VRMHandler handler = new VRMHandler();
+
 					// var orgVrm = vrmData != null ? ImportVRM(vrmData, scale) : ImportVRM(path, scale);
 
 					GameObject orgVrm;
@@ -269,10 +269,14 @@ namespace ValheimVRM
 
 					else
 					{
-						handler.Path = path;
-						handler.Scale = scale;
-						handler.loadVRM();
+						String fileExtension = Path.GetExtension(path);
+						Debug.Log(fileExtension);
+						bool isVRM = String.Equals(fileExtension, ".VRM", StringComparison.OrdinalIgnoreCase);
+						if (isVRM) { Debug.Log("This is a VRM file. VRM = " + isVRM); }
+                        else { Debug.Log("Not a VRM file. VRM = " + isVRM); }
+						VRMHandler handler = new VRMHandler(path, scale, isVRM);
 						orgVrm = handler.vrmGameObject;
+
 					}
 
 
