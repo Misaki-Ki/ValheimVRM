@@ -17,11 +17,20 @@
     <Reference Include="BepInEx">
       <HintPath>M:\Games\Steam\steamapps\common\Valheim\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="final_ik">
+      <HintPath>..\..\vhvr-mod\Unity\build\ValheimVR_Data\Managed\final_ik.dll</HintPath>
+    </Reference>
     <Reference Include="MToon">
-      <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\MToon.dll</HintPath>
+      <HintPath>C:\Users\Misaki\source\repos\vhvr-mod\Unity\build\ValheimVR_Data\Managed\MToon.dll</HintPath>
+    </Reference>
+    <Reference Include="root_motion_demo_assets">
+      <HintPath>..\..\vhvr-mod\Unity\build\ValheimVR_Data\Managed\root_motion_demo_assets.dll</HintPath>
+    </Reference>
+    <Reference Include="root_motion_shared">
+      <HintPath>..\..\vhvr-mod\Unity\build\ValheimVR_Data\Managed\root_motion_shared.dll</HintPath>
     </Reference>
     <Reference Include="UniGLTF">
-      <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\UniGLTF.dll</HintPath>
+      <HintPath>C:\Users\Misaki\source\repos\vhvr-mod\Unity\build\ValheimVR_Data\Managed\UniGLTF.dll</HintPath>
     </Reference>
     <Reference Include="UniHumanoid">
       <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\UniHumanoid.dll</HintPath>
@@ -41,12 +50,16 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="ValheimVRMod">
+      <HintPath>M:\Games\Steam\steamapps\common\Valheim\BepInEx\plugins\ValheimVRMod.dll</HintPath>
+    </Reference>
     <Reference Include="VRM">
-      <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\VRM.dll</HintPath>
+      <HintPath>C:\Users\Misaki\source\repos\vhvr-mod\Unity\build\ValheimVR_Data\Managed\VRM.dll</HintPath>
     </Reference>
     <Reference Include="VRMShaders.GLTF.IO.Runtime">
-      <HintPath>M:\Games\Steam\steamapps\common\Valheim\valheim_Data\Managed\VRMShaders.GLTF.IO.Runtime.dll</HintPath>
+      <HintPath>C:\Users\Misaki\source\repos\vhvr-mod\Unity\build\ValheimVR_Data\Managed\VRMShaders.GLTF.IO.Runtime.dll</HintPath>
     </Reference>
+	  
   </ItemGroup>
 
 </Project>

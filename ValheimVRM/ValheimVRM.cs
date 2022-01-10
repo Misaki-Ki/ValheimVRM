@@ -215,6 +215,7 @@ namespace ValheimVRM
 			{
 				playerName = __instance.GetPlayerName();
 				if (playerName == "" || playerName == "...") playerName = Game.instance.GetPlayerProfile().GetName();
+			
 			}
 			else
 			{
@@ -264,6 +265,7 @@ namespace ValheimVRM
 					if (vrmData != null)
 					{
 						orgVrm = ImportVRM(vrmData, scale);
+						VRMHandler.loadExisting(vrmData, scale);
 
 					}
 
@@ -385,7 +387,7 @@ namespace ValheimVRM
 						lodGroup.fadeMode = orgLodGroup.fadeMode;
 						lodGroup.animateCrossFading = orgLodGroup.animateCrossFading;
 
-						orgVrm.SetActive(false);
+						orgVrm.SetActive(false);  // Default: False
 
 						// VRMデータの共有設定
 						//if (Settings.ReadBool(playerName, "AllowVRMShare", false))
@@ -408,7 +410,7 @@ namespace ValheimVRM
 				var vrmModel = GameObject.Instantiate(vrmDic[playerName]);
 				VRMModels.PlayerToVrmDic[__instance] = vrmModel;
 				VRMModels.PlayerToNameDic[__instance] = playerName;
-				vrmModel.SetActive(true);
+				vrmModel.SetActive(true); // Default: True
 				vrmModel.transform.SetParent(__instance.GetComponentInChildren<Animator>().transform.parent, false);
 
 				foreach (var smr in __instance.GetVisual().GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -445,6 +447,7 @@ namespace ValheimVRM
 						if (__instance.gameObject.GetComponent<VRMEyePositionSync>() == null) __instance.gameObject.AddComponent<VRMEyePositionSync>().Setup(vrmEye);
 						else __instance.gameObject.GetComponent<VRMEyePositionSync>().Setup(vrmEye);
 					}
+					
 				}
 
 				// MToonの場合環境光の影響をカラーに反映する
