@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using RootMotion.FinalIK;
 using ValheimVRMod;
 using ValheimVRMod.Scripts;
 
@@ -21,10 +20,7 @@ namespace ValheimVRM
         private bool ragdoll;
         private float offset;
         private bool _isFirstPerson = ValheimVRMod.VRCore.VRPlayer.inFirstPerson;
-        private GameObject _rightHand;
-        private GameObject _leftHand;
-        public GameObject _VRCamera;
-        public VRIK vrik;
+
         public void Setup(Animator orgAnim, bool isRagdoll = false, float offset = 0.0f)
         {
 
@@ -183,12 +179,7 @@ namespace ValheimVRM
 
         void LateUpdate()
         {
-
-            var rightHand = new GameObject().transform;
-            var leftHand = new GameObject().transform;
-            var head = new GameObject().transform;
-            vrik = GetComponent<VRIK>();
-
+            Player localPlayer = Player.m_localPlayer;
 
             vrmAnim.transform.localPosition = Vector3.zero;
             var orgHipPos = orgAnim.GetBoneTransform(HumanBodyBones.Hips).position;
@@ -231,7 +222,7 @@ namespace ValheimVRM
             pos.y += adjustHeight;
             vrmHip.position = pos;
 
-            if (!ragdoll || !_isFirstPerson)
+            if ((!ragdoll && !localPlayer) || (!ragdoll && !_isFirstPerson))
             {
                 for (var i = 0; i < 55; i++)
                 {
@@ -251,7 +242,6 @@ namespace ValheimVRM
             vrmAnim.transform.localPosition += Vector3.up * offset;
 
 
-            Player localPlayer = Player.m_localPlayer;
 
             if (localPlayer && _isFirstPerson)
             {
