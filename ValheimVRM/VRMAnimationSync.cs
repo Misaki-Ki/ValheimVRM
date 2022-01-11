@@ -159,7 +159,9 @@ namespace ValheimVRM
             _isFirstPerson = ValheimVRMod.VRCore.VRPlayer.inFirstPerson;
             // This block in particular is what prevented VRM from working in VR. By making an if statement that checks for firstperson
             // we can avoid having the original model being moved.
-            if (!ragdoll && !_isFirstPerson)
+            Player localPlayer = Player.m_localPlayer;
+
+            if ((!ragdoll && !localPlayer) || (!ragdoll && !_isFirstPerson))
             {
                 for (var i = 0; i < 55; i++)
                 {
