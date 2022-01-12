@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using ValheimVRMod;
+using RootMotion.FinalIK;
 using ValheimVRMod.Scripts;
 
 namespace ValheimVRM
@@ -19,9 +20,17 @@ namespace ValheimVRM
         private HumanPose hp = new HumanPose();
         private bool ragdoll;
         private float offset;
-        private bool _isFirstPerson = ValheimVRMod.VRCore.VRPlayer.inFirstPerson;
+        
+        public String playerName { get; set; }
+        [System.ComponentModel.DefaultValue(0.0)]
+        public float vrHipOffset { get; set; }
 
-        public void Setup(Animator orgAnim, bool isRagdoll = false, float offset = 0.0f)
+        private bool _isFirstPerson = ValheimVRMod.VRCore.VRPlayer.inFirstPerson;
+        private Vector3 startingHeadScale = Vector3.one;
+        private Player playerInstance;
+
+
+        public void Setup(Animator orgAnim, Player playerInstance, bool isRagdoll = false, float offset = 0.0f)
         {
 
 
@@ -30,6 +39,7 @@ namespace ValheimVRM
             this.offset = offset; Debug.Log("Offset");
             this.orgAnim = orgAnim; Debug.Log("orgAnim"); Debug.Log(orgAnim);
             this.vrmAnim = GetComponent<Animator>(); Debug.Log("GetAnimator");
+            this.playerInstance = playerInstance;
             Debug.Log(vrmAnim);
 
             Component[] components = this.GetComponents(typeof(Component));
@@ -50,6 +60,7 @@ namespace ValheimVRM
             this.vrmAnim.feetPivotActive = orgAnim.feetPivotActive;
             this.vrmAnim.layersAffectMassCenter = orgAnim.layersAffectMassCenter;
             this.vrmAnim.stabilizeFeet = orgAnim.stabilizeFeet;
+            startingHeadScale = vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale;
             Debug.Log("Setup Complete");
 
             PoseHandlerCreate(orgAnim, vrmAnim);
@@ -156,19 +167,26 @@ namespace ValheimVRM
             // This block in particular is what prevented VRM from working in VR. By making an if statement that checks for firstperson
             // we can avoid having the original model being moved.
             Player localPlayer = Player.m_localPlayer;
+            
+
 
             if ((!ragdoll && !localPlayer) || (!ragdoll && !_isFirstPerson))
             {
-                for (var i = 0; i < 55; i++)
-                {
-                    var orgTrans = orgAnim.GetBoneTransform((HumanBodyBones)i);
-                    var vrmTrans = vrmAnim.GetBoneTransform((HumanBodyBones)i);
+                var vrIker = GetComponent<VRIK>();
 
-                    if (i > 0 && orgTrans != null && vrmTrans != null)
+                if (vrIker != null)
+                {
+                    if (vrIker.isActiveAndEnabled)
                     {
-                        orgTrans.position = vrmTrans.position;
+                        return;
                     }
+
+                    orgTransPosFromVRMTransPos();
                 }
+
+
+                
+                
             }
 
 
@@ -177,8 +195,35 @@ namespace ValheimVRM
 
         }
 
+        private void orgTransPosFromVRMTransPos()
+        {
+            for (var i = 0; i < 55; i++)
+            {
+                var orgTrans = orgAnim.GetBoneTransform((HumanBodyBones)i);
+                var vrmTrans = vrmAnim.GetBoneTransform((HumanBodyBones)i);
+
+                if (i > 0 && orgTrans != null && vrmTrans != null)
+                {
+                    orgTrans.position = vrmTrans.position;
+                }
+            }
+
+        }
+
+        private bool isLocalPlayer()
+        {
+            if (Player.m_localPlayer == playerInstance)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         void LateUpdate()
         {
+            string playerName = null;
+
             Player localPlayer = Player.m_localPlayer;
 
             vrmAnim.transform.localPosition = Vector3.zero;
@@ -222,7 +267,7 @@ namespace ValheimVRM
             pos.y += adjustHeight;
             vrmHip.position = pos;
 
-            if ((!ragdoll && !localPlayer) || (!ragdoll && !_isFirstPerson))
+            if ((!ragdoll && !isLocalPlayer()) || (!ragdoll && !_isFirstPerson)) 
             {
                 for (var i = 0; i < 55; i++)
                 {
@@ -242,11 +287,32 @@ namespace ValheimVRM
             vrmAnim.transform.localPosition += Vector3.up * offset;
 
 
+            // Here we'll do some corrections to VR. Shrinking the head to get it out of view. I need to make a clone for the shadows still.
+            // I'm going to include an Y offset, it should help make various models feel a bit better.
 
-            if (localPlayer && _isFirstPerson)
+
+            if (isLocalPlayer() && _isFirstPerson)
             {
-                vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale = new Vector3(0.001f, 0.001f, 0.0001f);
+                // Debug.Log("Local Player and First Person.");
+                if (playerName != null)
+                {
+                 //   Debug.Log("Player Name: " + playerName);
+                    this.vrmAnim.GetBoneTransform(HumanBodyBones.Hips).localPosition += Vector3.up * vrHipOffset;
+                }
+                
+                
+                this.vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale = new Vector3(0.001f, 0.001f, 0.0001f);
 
+                Debug.Log(vrmAnim.GetBoneTransform(HumanBodyBones.Head).name + " set to " + vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale);
+                
+
+            }
+
+            else
+            {
+               //  Debug.Log("else branch");
+                vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale = startingHeadScale;
+              //  Debug.Log("StartingHeadScale = " + startingHeadScale);
             }
 
             /*			if (localPlayer && _isFirstPerson)

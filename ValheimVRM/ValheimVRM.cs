@@ -134,7 +134,7 @@ namespace ValheimVRM
 			if (VRMModels.PlayerToVrmDic.TryGetValue((Player)__instance, out var vrm))
 			{
 				vrm.transform.SetParent(ragdoll.transform);
-				vrm.GetComponent<VRMAnimationSync>().Setup(ragAnim, true);
+				vrm.GetComponent<VRMAnimationSync>().Setup(ragAnim, (Player)__instance, true);
 			}
 		}
 	}
@@ -427,15 +427,20 @@ namespace ValheimVRM
 
 				// アニメーション同期
 				var offsetY = Settings.ReadFloat(playerName, "ModelOffsetY");
-				Debug.Log("ping");
+				
+
+
 				if (vrmModel.GetComponent<VRMAnimationSync>() == null)
 				{
-					Debug.Log("ping2");
-					vrmModel.AddComponent<VRMAnimationSync>().Setup(orgAnim, false, offsetY);
-					Debug.Log("ping3");
+					
+					vrmModel.AddComponent<VRMAnimationSync>().Setup(orgAnim, (Player)__instance, false, offsetY);
+					var vrmAnimationSync = vrmModel.GetComponent<VRMAnimationSync>();
+					vrmAnimationSync.playerName = playerName;
+					vrmAnimationSync.vrHipOffset = Settings.ReadFloat(playerName, "VRmodelOffsetY");
+					
 				}
-				else vrmModel.GetComponent<VRMAnimationSync>().Setup(orgAnim, false, offsetY);
-				Debug.Log("after ping");
+				else vrmModel.GetComponent<VRMAnimationSync>().Setup(orgAnim, (Player)__instance, false, offsetY);
+				
 				// カメラ位置調整
 				if (Settings.ReadBool(playerName, "FixCameraHeight", true))
 				{
