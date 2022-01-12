@@ -303,7 +303,7 @@ namespace ValheimVRM
                 
                 this.vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale = new Vector3(0.001f, 0.001f, 0.0001f);
 
-                Debug.Log(vrmAnim.GetBoneTransform(HumanBodyBones.Head).name + " set to " + vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale);
+               // Debug.Log(vrmAnim.GetBoneTransform(HumanBodyBones.Head).name + " set to " + vrmAnim.GetBoneTransform(HumanBodyBones.Head).localScale);
                 
 
             }
